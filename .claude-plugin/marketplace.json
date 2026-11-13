@@ -1,0 +1,11 @@
+{
+  "name": "civicrm-skills",
+  "owner": { "name": "civico GmbH" },
+  "plugins": [
+    {
+      "name": "civicrm-core-dev",
+      "source": "./plugins/civicrm-core-dev",
+      "description": "Skills for contributing to CiviCRM core: a map of the project, disposable instances with civikitchen, verifying bugs, writing and modernising tests, opening pull requests and issues, reviewing pull requests, reading CI results, and finding regressions around a release"
+    }
+  ]
+}

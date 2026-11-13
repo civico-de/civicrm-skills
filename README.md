@@ -1,0 +1,103 @@
+# civicrm-skills
+
+Agent Skills for contributing to [CiviCRM](https://civicrm.org) core:
+finding your way around the project, reproducing bugs, writing tests and
+catching regressions before a release. Packaged as a Claude Code plugin
+marketplace; each skill is a plain `SKILL.md` and can be used by any agent
+that reads the Agent Skills format.
+
+## Skills
+
+One plugin, `civicrm-core-dev`.
+
+| Skill | Use it when |
+|---|---|
+| `civicrm-project-map` | finding your way: issue trackers, repositories, reading code, search order before reporting, branches and release cycle |
+| `civikitchen` | a task needs a real CiviCRM instance: image and tag, booting a stack, core's test suites, comparing versions |
+| `civicrm-verify-bug` | a bug is suspected: reproduce it in a disposable instance before reporting or fixing |
+| `civicrm-tests` | writing tests: level, base class, fixtures, form and mail assertions, cleanup; the regression test for a fix; moving tests from APIv3 to APIv4 |
+| `civicrm-pull-request` | your own change goes upstream: rules for the code, pull request with test, bot commands, or an issue when others' input is needed, or a private security report |
+| `civicrm-review` | reviewing someone else's pull request: reproduce, validate, review standards, the review comment |
+| `civicrm-ci-results` | a pull or merge request has a red or pending check: read which jobs and tests failed from the command line |
+| `civicrm-release-regressions` | a version is about to ship or just shipped: compare it with the last one, find what broke, bisect and report |
+
+The skills use [civikitchen](https://github.com/civico-de/civikitchen) for
+disposable CiviCRM instances, and the `gh` and `glab` command line clients
+for reading issues and pull requests. Core's code is read from a local
+civicrm-core checkout; searching across extensions uses the
+`civicrm-knowledge` MCP server, otherwise clones.
+
+**Requirements for UI work.** Debugging anything in the user interface
+needs a browser the agent can drive, for example the Playwright MCP
+server or Claude in Chrome; any equivalent counts. civikitchen's `ck demo`
+records before-and-after videos of fixed routes for a person to watch, but
+does not let the agent explore a page. Without a drivable browser the
+skills stop instead of guessing what a page does.
+
+## Install
+
+```bash
+claude plugin marketplace add civico-de/civicrm-skills
+claude plugin install civicrm-core-dev@civicrm-skills
+```
+
+## MCP server
+
+The plugin connects `civicrm-knowledge`, an MCP server run by civico at
+`https://mcp.civico.de/mcp`. It searches an index of CiviCRM core, the
+published extensions, the documentation and the public issue and pull
+request discussions. Every skill works without it.
+
+- The server is open for now: no account, no token, a rate limit per
+  address. This may change.
+- Open access covers the search and read tools over the public part of
+  the index. A token adds code history and lifts the rate limit; write
+  to johannes@civico.de for one.
+- The server records every tool call to improve its search: the tool,
+  its arguments, timing and the documents returned, with the IP address
+  and client name. Do not put personal data or secrets into a query.
+
+## CI details (optional)
+
+Without any setup `civicrm-ci-results` reads which suites failed and how
+many tests. The names and messages of the failed tests are in Jenkins on
+test.civicrm.org, which needs a login:
+
+1. Log in at https://test.civicrm.org with your civicrm.org account.
+2. Open your user's settings there and create an API token.
+3. Provide both to the agent's shell as environment variables, for example
+   from a file outside any repository that your shell profile sources:
+
+   ```bash
+   export CIVICRM_JENKINS_USER=<your user name>
+   export CIVICRM_JENKINS_TOKEN=<the token>
+   ```
+
+The skill's `scripts/jenkins.sh` reads them and passes them to curl on
+stdin, so the token does not appear on a command line.
+
+## Layout
+
+```
+.claude-plugin/marketplace.json     marketplace manifest
+plugins/civicrm-core-dev/
+  .claude-plugin/plugin.json        plugin manifest and version
+  .mcp.json                         the civicrm-knowledge MCP server
+  skills/<name>/SKILL.md            one skill per directory
+  skills/<name>/references/*.md     read on demand, linked from SKILL.md
+  skills/<name>/scripts/*           helper scripts a skill runs
+```
+
+## Contributing
+
+A rule goes into a skill when it has been checked against CiviCRM's source
+or documentation, or run in an instance. A rule that cites its source
+(a Developer Guide page, a file in civicrm-core) states upstream's policy;
+an uncited rule is this repository's own working practice, often stricter
+than upstream's. Bump the plugin version with every change to a skill.
+
+Security issues: security@civico.de.
+
+## License
+
+AGPL-3.0. See [LICENSE.md](LICENSE.md).
