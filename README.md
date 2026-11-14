@@ -21,25 +21,36 @@ One plugin, `civicrm-core-dev`.
 | `civicrm-ci-results` | a pull or merge request has a red or pending check: read which jobs and tests failed from the command line |
 | `civicrm-release-regressions` | a version is about to ship or just shipped: compare it with the last one, find what broke, bisect and report |
 
-The skills use [civikitchen](https://github.com/civico-de/civikitchen) for
-disposable CiviCRM instances, and the `gh` and `glab` command line clients
-for reading issues and pull requests. Core's code is read from a local
-civicrm-core checkout; searching across extensions uses the
-`civicrm-knowledge` MCP server, otherwise clones.
-
-**Requirements for UI work.** Debugging anything in the user interface
-needs a browser the agent can drive, for example the Playwright MCP
-server or Claude in Chrome; any equivalent counts. civikitchen's `ck demo`
-records before-and-after videos of fixed routes for a person to watch, but
-does not let the agent explore a page. Without a drivable browser the
-skills stop instead of guessing what a page does.
-
 ## Install
 
 ```bash
 claude plugin marketplace add civico-de/civicrm-skills
 claude plugin install civicrm-core-dev@civicrm-skills
 ```
+
+## Requirements
+
+The plugin installs the skills and connects the MCP server. The tools the
+skills call are yours to set up:
+
+| Needed for | What |
+|---|---|
+| reading and changing core's code | a local [civicrm-core](https://github.com/civicrm/civicrm-core) checkout |
+| issues, pull and merge requests | the `gh` and `glab` command line clients, logged in |
+| running an instance or core's tests | Docker; the skills pull [civikitchen](https://github.com/civico-de/civikitchen)'s images. A civikitchen checkout is needed only to build an image of a branch that has none |
+| anything in the user interface | a browser the agent can drive, for example the Playwright MCP server or Claude in Chrome; any equivalent counts |
+
+Optional:
+
+- The `civicrm-knowledge` MCP server for searching across extensions,
+  connected by the plugin ([MCP server](#mcp-server)); without it the
+  skills clone what they need.
+- A Jenkins login for the names and messages of failed tests
+  ([CI details](#ci-details-optional)).
+
+civikitchen's `ck demo` records before-and-after videos of fixed routes for
+a person to watch, but does not let the agent explore a page. Without a
+drivable browser the skills stop instead of guessing what a page does.
 
 ## MCP server
 

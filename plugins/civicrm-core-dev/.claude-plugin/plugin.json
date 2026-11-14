@@ -1,6 +1,6 @@
 {
   "name": "civicrm-core-dev",
   "description": "Skills for contributing to CiviCRM core: a map of the project, disposable instances with civikitchen, verifying bugs, writing and modernising tests, opening pull requests and issues, reviewing pull requests, reading CI results, and finding regressions around a release",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": { "name": "civico GmbH" }
 }

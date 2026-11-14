@@ -89,7 +89,16 @@ docker compose -p <unique-name> down -v           # -v for a clean reset
 | Same check on two versions | `ck ab <A> <B> [--mount src:dst] -- <command>` on the host |
 | Before and after on screen | `ck demo <PR or diff> --page <route> [--cms all]` on the host |
 
-`ck` on the host is `scaffold/ck` from a civikitchen checkout.
+`ck` on the host is the `civikitchen-cli` image; it needs Docker and no
+checkout. Run it from a directory below `$HOME`, with the `ck` arguments
+after the image name:
+
+```bash
+docker run --rm -i --init --network host -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME:$HOME" -w "$PWD" -e HOME=/tmp -e CK_USER="$(id -u):$(id -g)" ghcr.io/civico-de/civikitchen-cli run standalone-master -- cv api4 Contact.get
+```
+
+In a civikitchen checkout `scaffold/ck` does the same and adds
+`scaffold/ck make`, which building an image needs.
 `ckcoretest`, `cktestreset`, `ck run` and `ck ab` work on the Standalone images only;
 on a CMS flavour, reproduce through the site itself.
 
