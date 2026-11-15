@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# A stand-in for civikitchen's ck in eval runs: `ck run` prints what a run of one
+# test prints and exits as it would. The test's method name picks the outcome.
+set -u
+
+[ "${1:-}" = run ] || { echo "ck: this stand-in knows only ck run" >&2; exit 2; }
+shift
+image="$1"
+arguments="$*"
+command="${arguments#* -- }"
+name="$(printf '%s\n' "${arguments%% -- *}" | sed -n 's/.*--name \([a-z0-9_-]*\).*/\1/p')"
+stack="${name:-ck-run-$image}"
+class="$(printf '%s\n' "$command" | sed -n 's|.*/\([A-Za-z0-9_]*\)\.php.*|\1|p')"
+method="$(printf '%s\n' "$command" | sed -n 's/.*--filter[ =]\([A-Za-z0-9_]*\).*/\1/p')"
+
+case "$image" in
+  standalone-6.20) side=A; version='CiviCRM 6.20.1, tarball https://download.civicrm.org/civicrm-6.20.1-standalone.tar.gz' ;;
+  standalone-beta) side=B; version='CiviCRM 6.21.beta1, git . 4f0c2aa91b6d5e8a7c3b2d1f0e9a8b7c6d5e4f3a, git packages 77d1e03c5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d' ;;
+  *) echo "ck: no image $image" >&2; exit 2 ;;
+esac
+echo " Container $stack-app-1 Healthy"
+echo "ck run: ghcr.io/civico-de/civikitchen:$image ($version): $command"
+echo "PHPUnit 9.6.35 by Sebastian Bergmann and contributors."
+echo
+
+# How often this test ran on this side: an unstable test fails on its first run only.
+mkdir -p .ck-runs
+count="$(cat ".ck-runs/$method.$side" 2>/dev/null || echo 0)"
+echo $((count + 1)) > ".ck-runs/$method.$side"
+
+outcome=pass
+case "$method:$side" in
+  testExport:B) if [ "$count" = 0 ]; then outcome=fail; fi ;;
+  testGreetingByLocale:*|testGreetingFallback:*) outcome=fail ;;
+  testLegacyFilter:B|:*) outcome=none ;;
+  testNeedsMailer:B) outcome=skip ;;
+  testBatchClose:*|*:A) outcome=pass ;;
+  *:B) outcome=fail ;;
+esac
+
+case "$outcome" in
+  pass)
+    printf '.                                                                   1 / 1 (100%%)\n\nTime: 00:02.412, Memory: 62.50 MB\n\nOK (1 test, 3 assertions)\n'
+    status=0 ;;
+  none)
+    printf 'No tests executed!\n'
+    status=0 ;;
+  skip)
+    printf 'S                                                                   1 / 1 (100%%)\n\nTime: 00:01.207, Memory: 62.50 MB\n\n'
+    printf 'OK, but incomplete, skipped, or risky tests!\nTests: 1, Assertions: 0, Skipped: 1.\n'
+    status=0 ;;
+  fail)
+    printf 'F                                                                   1 / 1 (100%%)\n\nTime: 00:02.633, Memory: 62.50 MB\n\nThere was 1 failure:\n\n'
+    printf '1) Civi\\Example\\%s::%s\nFailed asserting that two strings are identical.\n' "$class" "$method"
+    printf -- "--- Expected\n+++ Actual\n@@ @@\n-'%s: done'\n+'%s: '\n\n" "$method" "$method"
+    printf '/var/www/html/ext/org.example.myext/tests/phpunit/Civi/Example/%s.php:41\n\nFAILURES!\nTests: 1, Assertions: 3, Failures: 1.\n' "$class"
+    status=1 ;;
+esac
+echo " Container $stack-app-1 Removed"
+exit "$status"
