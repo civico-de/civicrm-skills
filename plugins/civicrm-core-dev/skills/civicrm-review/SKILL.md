@@ -46,8 +46,10 @@ problem worth solving in core. Then validate the fix, proportionately
   branch built from git, `CIVICRM_VERSION=<X.Y>`), the PR's changed
   directories mounted (`civicrm-verify-bug`). The PR's test runs red with only
   the test mounted and green with the fix mounted too (`ck run <image>
-  --mount <src>:<dst> -- ckcoretest <path>`); a test that passes without the fix proves
-  nothing (`civicrm-tests`). Visible changes: `ck demo <PR> --page
+  --mount <checkout>/tests:/var/www/html/core/tests -- ckcoretest <path>`,
+  then with a second `--mount` for each directory of the fix, e.g.
+  `<checkout>/CRM:/var/www/html/core/CRM`); a test that passes without the
+  fix proves nothing (`civicrm-tests`). Visible changes: `ck demo <PR> --page
   <route>`. A claimed regression between versions: `ck ab`.
 - **Limit of a mount.** Mounts and `ck demo` apply files only, with no
   `composer install` and no schema upgrade: a change to the schema or to
