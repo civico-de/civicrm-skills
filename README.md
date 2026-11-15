@@ -107,6 +107,7 @@ plugins/civicrm-core-dev/
   agents/<name>.md                  a subagent with its own model and steps
   evals/<case>/prompt.md            an eval case: one request to the agent
   evals/<case>/graders/*.md         what a good answer to it contains
+  evals/<case>/fixture.sh, ck       a case's workspace and its stand-in for `ck`
   evals/fixtures/ck                 stand-in for `ck run` in agent cases
 ```
 
@@ -124,9 +125,12 @@ commit when a bisect did not confirm one. In the plugin directory,
 `claude plugin eval . --tag skill` runs them with and without the plugin
 and reports the difference; `--model` picks the model to check. The cases
 tagged `agent` let the `regression-triage` agent run its steps against
-`evals/fixtures/ck`, a stand-in that prints what `ck run` prints; they
-need `--scaffold --allow-tools Bash`, and a machine on which Claude Code's
-shell sandbox starts. Runs use tokens, so cap them with `--max-cost-usd`.
+`evals/fixtures/ck`, a stand-in that prints what `ck run` prints. The cases
+tagged `tools` give the agent a shell, a small git checkout and a stand-in
+`ck`, and grade what it ran and what the checkout holds afterwards. Both
+kinds need `--scaffold --allow-tools Bash`, and a machine on which Claude
+Code's shell sandbox starts. Runs use tokens, so cap them with
+`--max-cost-usd`.
 
 Security issues: security@civico.de.
 

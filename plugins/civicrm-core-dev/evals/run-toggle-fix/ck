@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# A stand-in for civikitchen's ck in this eval case: `ck run` of the reproducer
+# prints what PHPUnit prints for the files the mounts put into the stack.
+set -u
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+reproducer=tests/phpunit/CRM/Example/WidgetTitleTest.php
+
+fail() {
+  printf 'ck: %s\n' "$1" >&2
+  exit 2
+}
+
+usage() {
+  cat <<'TXT'
+ck run — run a command in a fresh Standalone stack of one CiviCRM version
+
+  ck run <image> [options] -- <command> [arguments ...]
+
+  <image>              a Standalone image, or a civikitchen tag such as standalone-6.16,
+                       standalone, standalone-beta or standalone-master
+  --mount <src>:<dst>  mount a host path into the app container (repeatable), e.g. a
+                       directory of a civicrm-core checkout over /var/www/html/core/<dir>
+  --name <project>     compose project name (default: ck-run-<tag>)
+
+The command runs in the app container as www-data, from /var/www/html:
+
+  ck run standalone-master --mount "$PWD/tests:/var/www/html/core/tests" -- ckcoretest tests/phpunit/api/v4/Query
+
+Exit status: the command's. The stack and its volumes are removed afterwards.
+TXT
+}
+
+[ "${1:-}" = run ] || fail 'this stand-in knows only ck run; see ck run --help'
+shift
+if [ $# -eq 0 ] || [ "$1" = -h ] || [ "$1" = --help ]; then
+  usage
+  exit 0
+fi
+
+image=''
+name=''
+mounts=()
+while [ $# -gt 0 ] && [ "$1" != -- ]; do
+  case "$1" in
+    --mount)
+      [[ "${2:-}" =~ ^/[^:]*:/[^:]+$ ]] || fail "--mount takes <absolute host path>:<container path>, not ${2:-}"
+      [ "${2#*:}" != /var/www/html/core ] || fail 'this stand-in takes mounts below /var/www/html/core, not the core directory itself'
+      mounts+=("$2")
+      shift 2 ;;
+    --name)
+      name="${2:-}"
+      shift 2 ;;
+    --*) fail "unknown option $1; see ck run --help" ;;
+    *)
+      [ -z "$image" ] || fail 'run takes one image, got 2'
+      image="${1##*:}"
+      shift ;;
+  esac
+done
+[ $# -gt 1 ] || fail 'which command? Give it after --'
+shift
+[ "$image" = standalone-master ] || fail "this stand-in has only the image standalone-master, not ${image:-none}"
+[ "$1" = ckcoretest ] || fail "this stand-in runs only ckcoretest <test file>, not $1"
+
+# The host path behind a path of the core directory: the longest mount that covers it, else the image's copy.
+host_path() {
+  local path="/var/www/html/core/$1" mount source destination best='' found="$here/.ck-image/$1"
+  for mount in ${mounts[@]+"${mounts[@]}"}; do
+    source="${mount%%:*}"
+    destination="${mount#*:}"
+    destination="${destination%/}"
+    case "$path" in
+      "$destination" | "$destination"/*)
+        if [ "${#destination}" -gt "${#best}" ]; then
+          best="$destination"
+          found="${source%/}${path#"$destination"}"
+        fi ;;
+    esac
+  done
+  printf '%s\n' "$found"
+}
+
+target=''
+for argument in "${@:2}"; do
+  case "$argument" in
+    -*) ;;
+    *) target="${argument#/var/www/html/core/}" ;;
+  esac
+done
+[ -n "$target" ] || fail 'this stand-in needs the test file: ckcoretest <test file>'
+
+echo " Container ${name:-ck-run-$image}-app-1 Healthy"
+echo "ck run: ghcr.io/civico-de/civikitchen:$image (CiviCRM 6.22.alpha1, git . 1c9e44b0a7f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9, git packages 5d02f7e6118a9b0c1d2e3f4a5b6c7d8e9f0a1b2c): $*"
+echo 'PHPUnit 9.6.35 by Sebastian Bergmann and contributors.'
+echo
+
+class=CRM_Example_WidgetTitleTest
+progress='                                                                   1 / 1 (100%)'
+if [ ! -e "$(host_path "$target")" ]; then
+  printf 'Cannot open file "%s".\n' "$target"
+  status=1
+elif [ "$target" != "$reproducer" ] || [ ! -f "$(host_path "$reproducer")" ]; then
+  printf 'No tests executed!\n'
+  status=0
+elif ! grep -q 'function withoutTitle' "$(host_path tests/phpunit/CRM/Example/WidgetFixture.php)"; then
+  printf 'E%s\n\nTime: 00:01.871, Memory: 62.50 MB\n\nThere was 1 error:\n\n' "$progress"
+  printf '1) %s::testTitleFallback\nError: Call to undefined method CRM_Example_WidgetFixture::withoutTitle()\n\n' "$class"
+  printf '/var/www/html/core/%s:9\n\nERRORS!\nTests: 1, Assertions: 0, Errors: 1.\n' "$reproducer"
+  status=2
+elif ! grep -q "'Untitled'" "$(host_path CRM/Example/Widget.php)"; then
+  printf 'F%s\n\nTime: 00:02.633, Memory: 62.50 MB\n\nThere was 1 failure:\n\n' "$progress"
+  printf '1) %s::testTitleFallback\nFailed asserting that %s is identical to %s.\n\n' "$class" null "'Untitled'"
+  printf '/var/www/html/core/%s:9\n\nFAILURES!\nTests: 1, Assertions: 1, Failures: 1.\n' "$reproducer"
+  status=1
+else
+  printf '.%s\n\nTime: 00:02.412, Memory: 62.50 MB\n\nOK (%d test, %d assertion)\n' "$progress" 1 1
+  status=0
+fi
+echo " Container ${name:-ck-run-$image}-app-1 Removed"
+exit "$status"
