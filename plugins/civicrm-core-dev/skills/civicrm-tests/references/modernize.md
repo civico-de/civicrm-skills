@@ -6,6 +6,9 @@ are in `SKILL.md`; this page adds what is specific to converting. Read
 commits (`git log --grep='apiv4' -- tests/phpunit`) before the first edit,
 because the conventions move.
 
+Contents: Triage each v3 call · Conversion patterns · Leave alone · What
+the conversion surfaces · Verify · Slicing for upstream · Completion
+
 ## Triage each v3 call
 
 Inventory with `git grep -nE "callAPI|civicrm_api3?\(" -- <dir>` and sort

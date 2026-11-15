@@ -1,6 +1,6 @@
 ---
 name: civikitchen
-description: Run CiviCRM in disposable Docker instances with civikitchen - choosing an image and tag (standalone, CMS flavours, master, beta, an old minor), booting a stack, running commands in it, core's PHPUnit suites (ckcoretest), mounting a core checkout, comparing two versions (ck ab), recording before and after (ck demo), resetting, and the traps. Use whenever a task needs a real CiviCRM instance, "spin up CiviCRM", "test against 6.x", "auf master testen", or a ck* command. Only how to get and run an instance; reproducing a bug is civicrm-verify-bug; verifying a bug, reviewing a PR or hunting a release regression follow civicrm-verify-bug, civicrm-review and civicrm-release-regressions, which call this skill.
+description: Run CiviCRM in disposable Docker instances with civikitchen - choosing an image and tag (standalone, CMS flavours, master, beta, an old minor), booting a stack, running commands in it, core's PHPUnit suites (ckcoretest), mounting a core checkout, comparing two versions (ck ab), bisecting to a commit (ck bisect), recording before and after (ck demo), resetting, and the traps. Use whenever a task needs a real CiviCRM instance, "spin up CiviCRM", "test against 6.x", "auf master testen", or a ck* command. Only how to get and run an instance; reproducing a bug is civicrm-verify-bug; verifying a bug, reviewing a PR or hunting a release regression follow civicrm-verify-bug, civicrm-review and civicrm-release-regressions, which call this skill.
 ---
 
 # civikitchen
@@ -87,6 +87,7 @@ docker compose -p <unique-name> down -v           # -v for a clean reset
 | Test a change | mount the touched directory of a civicrm-core checkout over `/var/www/html/core/<dir>` |
 | One command in a fresh stack, removed afterwards | `ck run <image> [--mount src:dst] [--name <project>] [--keep] -- <command>` on the host |
 | Same check on two versions | `ck ab <A> <B> [--mount src:dst] -- <command>` on the host |
+| The core commit at which a check starts to fail | `ck bisect <image> --core <checkout> --good <rev> --bad <rev> --dir <name> [--mount src:dst] -- <command>` on the host |
 | Before and after on screen | `ck demo <PR or diff> --page <route> [--cms all]` on the host |
 
 `ck` on the host is the `civikitchen-cli` image; it needs Docker and no
@@ -99,12 +100,13 @@ docker run --rm -i --init --network host -v /var/run/docker.sock:/var/run/docker
 
 In a civikitchen checkout `scaffold/ck` does the same and adds
 `scaffold/ck make`, which building an image needs.
-`ckcoretest`, `cktestreset`, `ck run` and `ck ab` work on the Standalone images only;
+`ckcoretest`, `cktestreset`, `ck run`, `ck ab` and `ck bisect` work on the Standalone images only;
 on a CMS flavour, reproduce through the site itself.
 
 Checking behaviour in the UI of a stack by hand needs a browser the agent
 can drive (for example the Playwright MCP server or Claude in Chrome; any
-equivalent counts); without one, say so and stop. `ck demo` records fixed
+equivalent counts). Without one, say so, report the UI behaviour as not
+verified and carry on with what needs no browser. `ck demo` records fixed
 routes or a `--steps` script in its own Playwright container and lists
 script errors: enough to show a visible change to a person, not to explore
 a page; it proves behaviour only where its `--steps` module asserts it.
@@ -125,6 +127,10 @@ Core's own browser tests above run without either.
   extensions there.
 - `ck ab` compares per test when the command writes JUnit to
   `/tmp/ck-ab.xml`, otherwise by exit status.
+- `ck bisect` moves the HEAD of the checkout it is given and installs the
+  site on `--bad`: give it a work tree of its own and the image closest to
+  `--bad`. The steps are in `civicrm-release-regressions`, "From
+  difference to cause".
 - Some failures belong to the environment, not the change (locale files,
   `open_basedir`). Run the unchanged class as a baseline before attributing
   a failure.
@@ -142,6 +148,14 @@ Core's own browser tests above run without either.
 - `Interface "…" not found` on every headless boot, or a suite that does
   not see new seed data: stale test database; `cktestreset`.
 - Flaky results: another session uses the same stack.
+- `ck` does not know `bisect`: it is older than the command. Pull the
+  current `civikitchen-cli` image, or update the checkout behind
+  `scaffold/ck`.
+- `Class "CiviUnitTestCase" not found` with `tests` mounted into a
+  released image: its `ckcoretest` predates the one that fetches
+  `phpunit.xml.dist` and the seed SQL for a mounted `tests/`. Pull the
+  current image, or use a git-built one (`standalone-master`,
+  `standalone-beta`), which carries both.
 
 ## Completion
 

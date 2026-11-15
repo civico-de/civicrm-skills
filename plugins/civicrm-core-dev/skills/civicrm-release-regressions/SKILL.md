@@ -42,9 +42,9 @@ as a baseline, and look mainly where core's CI does not:
    step 4). A `ck demo` recording is evidence for a person, not
    exploration: count it as browser coverage only when its `--steps`
    module asserts the behaviour (an error thrown there ends the run
-   non-zero; script errors the page logs are only listed in the report,
-   per civikitchen's source, not run here). Otherwise name the browser
-   as not covered.
+   non-zero; script errors the page logs are only listed in the report:
+   read from civikitchen's source, not confirmed by a run). Otherwise name
+   the browser as not covered.
 4. **The other CMS integrations.** Standalone is the fast loop; a regression
    in routing, permissions, assets or user sync shows only on the CMS.
 5. **What changed.** Read the release notes and
@@ -82,6 +82,22 @@ it compares exit statuses.
   seed data and run the identical check on both.
 - Each difference gets a reproducer of its own and goes through
   `civicrm-verify-bug`, with A as the control run.
+- More than a handful of tests under "pass on A, fail on B": hand each
+  test to this plugin's `regression-triage` agent first, one agent per
+  test and a few at a time, since each boots three stacks. Give it `TEST`,
+  `A`, `B`, `RUN` (the command that runs only that test), `CK` (how `ck` is
+  called here), `ID` (a short lowercase word of its own) and, as
+  `OPTIONS`, the `--mount` and `--locales` arguments of the A/B run. It
+  reruns the test alone, twice on B and once on A, and returns a verdict
+  in a fixed format; it runs fixed steps on a small model, the judging
+  stays here. Continue with `reproduced`.
+  `flaky` and `fails-on-both` are no regression between A and B.
+  `passes-alone` points at state an earlier test leaves behind, which may
+  itself be new in B. Read the `A:` line with every verdict: a control
+  that failed alone is not the pass the A/B run showed. Rerun `could-not-run` yourself. With a handful or
+  fewer, or where the agent is not available, do the three runs yourself.
+  Where the A/B run was on another machine, pull both images first: a run
+  that has to pull one can outlast the ten minutes the agent gives it.
 
 Data in these instances is seed data. Never copy a production database into
 one to "get realistic data".
@@ -91,16 +107,57 @@ one to "get realistic data".
 - Intended change or regression? Check the release notes, the PR that
   touched the code and its tests. A documented behaviour change is an
   upgrade note for your own code, not an upstream bug.
-- Bisect with the reproducer as the oracle: `git bisect start <B> <A>` in a
-  core checkout, with the directories that hold the suspect code mounted
-  into a git-built instance (`git diff --stat <A> <B>` names them), `cv
-  flush` between steps, `git bisect run` when the test is headless. Mounted
-  code on an older image is a mixed state: say so in the result, and take a
-  failure unrelated to the reproducer as a sign of it. Schema, settings or
-  composer changes between the two ends, or a stack that no longer boots,
-  need a rebuilt image per step; narrow the range by release tags first.
-- The result is one commit and its PR. If bisecting is not feasible, say
-  "introduced between A and B".
+- Find the commit with `ck bisect` (civikitchen
+  `docs/core-development.md`, "Finding the commit"). It runs `git bisect`
+  over a range of civicrm-core with the reproducer as the check, in one
+  stack that has directories of a checkout mounted:
+
+  1. Make the reproducer a command whose exit status is the verdict: 0
+     when the behaviour is right, 1 when it is broken. A headless test
+     (`ckcoretest <file>`) or a `cv ev` one-liner does; a check that needs
+     a browser cannot drive a bisect.
+  2. Give the run a work tree of civicrm-core of its own
+     (`git worktree add --detach <dir> <B>`): its HEAD moves during the
+     run. A reproducer test that is in no commit goes into that work tree
+     as an untracked file, under a name no commit in the range uses.
+  3. Take the image whose core is B or closest to it; the site installs
+     on B. As `--dir`, name the directories that hold the suspect code and
+     the reproducer (`git diff --stat <A>...<B>` lists what changed). A
+     check that is an extension's test also needs the extension:
+     `--mount <its checkout>:/var/www/html/ext/<name>`.
+  4. Run it:
+
+     ```bash
+     ck bisect <image> --core <dir> --good <A> --bad <B> --dir CRM --dir Civi --dir tests -- ckcoretest tests/phpunit/<reproducer>
+     ```
+
+     It requires the check to pass on A and fail on B, bisects, and
+     reruns the check on the commit found and on its parents.
+  5. Exit status 0: the commit is confirmed. Name its pull request:
+     - Its own subject reads `Merge pull request #…`: that is the one.
+     - Otherwise it is the oldest pull request merge that descends from
+       the commit:
+       `git log --merges --ancestry-path <commit>..origin/master --reverse --format='%h %s' | grep -m1 'Merge pull request'`.
+       Check that this merge brought the commit:
+       `git merge-base --is-ancestor <commit> <that merge>^` exits 1. With
+       0 the commit sat on the branch before that merge and has no pull
+       request (a version bump, for example).
+     - No output: `origin/master` does not hold the commit, or nothing was
+       merged after it. Run the command with the release branch that holds
+       it (`git branch -r --contains <commit>`), or name the commit
+       without a pull request.
+
+     Any other outcome (status 1 "not confirmed", a check that does not
+     pass on A, only skipped commits left): say "introduced between A and
+     B" with the reason `ck bisect` printed, and name no commit.
+
+  `ck bisect` lists what the range changes outside the mounted
+  directories. Every commit runs on the image's copy of those, a mixed
+  state: say so in the result, and take a failure unrelated to the
+  reproducer as a sign of it. Schema or composer changes between the two
+  ends, or commits on which the site no longer flushes its caches, need an
+  image built per commit instead; narrow the range by release tags first.
+- The result is one commit and its PR, or "introduced between A and B".
 
 ## Reporting
 

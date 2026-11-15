@@ -1,6 +1,6 @@
 ---
 name: civicrm-verify-bug
-description: Verify a suspected CiviCRM bug in a disposable civikitchen instance before it is reported or fixed. Use for "reproduce this bug" and when a core bug is suspected from reading code, a user report or a failing test, also one that shows up through an extension, and before drafting an issue, a PR or a fix. Covers image choice, ckcoretest, ck demo, the failing reproducer and the evidence a finding needs. Owns the verification workflow for one suspected bug and uses civikitchen for the instance; comparing versions or "is this a regression in X.Y" is civicrm-release-regressions, the test that ships with the fix is civicrm-tests.
+description: Verify a suspected CiviCRM bug in a disposable civikitchen instance before it is reported or fixed. Use for "reproduce this bug", for the red run without a fix and the green run with it, and when a core bug is suspected from reading code, a user report or a failing test, also one that shows up through an extension, and before drafting an issue, a PR or a fix. Covers image choice, ckcoretest, ck demo, the failing reproducer and the evidence a finding needs. Owns the verification workflow for one suspected bug and uses civikitchen for the instance; comparing versions or "is this a regression in X.Y" is civicrm-release-regressions, the test that ships with the fix is civicrm-tests.
 ---
 
 # Verify a CiviCRM bug with civikitchen
@@ -51,8 +51,9 @@ Check it when a command behaves differently from this page.
    as videos and lists each page's script errors; that is evidence for a
    person watching it, not a way to explore a page, and it proves the
    behaviour only where its `--steps` module asserts it. Without a
-   drivable browser, say so and stop. Behaviour outside the UI is reproduced
-   through API or test.
+   drivable browser, say so and report the UI claim as not reproduced in
+   the UI; the rest of the investigation goes on. Behaviour outside the UI
+   is reproduced through API or test.
    A claim about an API is reproduced through that API, with
    `checkPermissions` as the caller would have it.
 5. **Write the reproducer as a test**, next to the existing tests for that

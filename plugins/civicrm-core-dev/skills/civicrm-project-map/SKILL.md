@@ -50,9 +50,11 @@ faster than a forge: `git log -S'<symbol>'`, `git log --grep='dev/core#1234'`.
 
 ## Reading code
 
-Never take code from a web search, a web page of a forge or memory. A
-search engine returns old versions, forks and snippets without a commit; a
-claim about core needs a file, a line and the commit it was read at.
+A claim about core or extension code needs a file, a line and the commit it
+was read at. A web search, a web page of a forge and memory give none of
+the three: a search engine returns old versions, forks and snippets
+without a commit. Read code from the checkout, the MCP server or a clone,
+as below.
 
 **Core** is read from the local civicrm-core checkout; work on core always
 has one. Fetch first, and read the branch the question is about rather
@@ -81,8 +83,9 @@ default:
   'projects/<group>%2F<project>/search?scope=blobs&search=<words>'`.
   Searching a whole group this way is not available. On GitHub:
   `gh search code '<words>' --repo <owner>/<repo>`.
-- If none of this is possible, say so and stop; do not substitute what a
-  web search returns.
+- If none of this is possible, say so and leave the question about that
+  code open; the rest of the task goes on. Do not substitute what a web
+  search returns.
 
 ## Before reporting or fixing
 

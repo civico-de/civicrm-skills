@@ -58,9 +58,9 @@ problem worth solving in core. Then validate the fix, proportionately
   The Dockerfile fetches that ref from the civicrm/civicrm-core
   repository itself, so a commit only on the contributor's fork cannot be
   built without changing it, and the image is tagged with the ref, so a
-  ref containing `/` is no valid tag. Whether a `refs/pull/<n>/head` ref
-  builds is untested. Otherwise write "schema change not verified
-  locally".
+  ref containing `/` fails: docker rejects
+  `civikitchen:standalone-refs/pull/<n>/head` as an invalid tag before it
+  builds anything. Otherwise write "schema change not verified locally".
 - **Database upgrades.** The guide installs the latest release, applies
   the PR, runs `bin/setup.sh -Dg` and the upgrade. civikitchen cannot do
   this; write "upgrade path not verified locally" and read the

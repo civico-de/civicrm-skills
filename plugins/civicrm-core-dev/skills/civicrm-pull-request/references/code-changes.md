@@ -4,6 +4,9 @@ Read before writing code for core, and when reviewing a change of the kind
 below. Each section names its source in civicrm-dev-docs or civicrm-core;
 read the source when a case is not covered here.
 
+Contents: Core's AGENTS.md · Code style (lint) · Secure coding · Schema and
+upgrade steps · Deprecation · Dependencies
+
 ## Core's AGENTS.md
 
 Read civicrm-core's `AGENTS.md` on the base branch before changing code; it
