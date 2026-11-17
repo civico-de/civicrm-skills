@@ -1,6 +1,6 @@
 ---
 name: civicrm-release-regressions
-description: Find regressions in a CiviCRM version before it is released or right after - in the release candidate, on master, or in a fresh stable. Use for "test the RC", "is 6.x safe to upgrade to", "what broke since the last release", running an extension's suite against beta and master, comparing two versions, bisecting a regression to its commit, and reporting it so it is fixed before or in the next point release. Owns comparing versions around a release; one suspected bug on one version is civicrm-verify-bug; "is this a regression in X.Y" starts here.
+description: Find regressions in a CiviCRM version before it is released or right after - in the release candidate, on master, or in a fresh stable. Use for "test the RC", "is 6.x safe to upgrade to", "what broke since the last release", running an extension's suite against beta and master, comparing two versions, testing a private or security branch that has no image, checking a security backport's diff for legitimate use it refuses, bisecting a regression to its commit, and reporting it so it is fixed before or in the next point release. Owns comparing versions around a release; one suspected bug on one version is civicrm-verify-bug; "is this a regression in X.Y" starts here.
 ---
 
 # Find regressions around a CiviCRM release
@@ -50,7 +50,21 @@ as a baseline, and look mainly where core's CI does not:
 5. **What changed.** Read the release notes and
    `git log <A>..<B> --stat` for the components you depend on, and aim
    checks at those: changed function signatures, removed deprecated code,
-   schema changes, reworked forms.
+   schema changes, reworked forms. Where CI already runs B's own suites,
+   as on a security or point-release branch, reading the code diff
+   (`git diff <A> <B> -- . ':!tests' ':!*/tests/*'`) is the main check.
+   Ask of every hunk which legitimate use it now refuses:
+   - a contract other code relies on: event methods a listener has to call,
+     new scalar type declarations (`?int` rejects `''`), an exception where
+     a value used to pass through;
+   - stricter input: validation or escaping that throws on a value an
+     existing form, saved report or stored setting still sends;
+   - new encoding: a value used as a path, URL or markup on purpose;
+   - a new permission check on a path other roles use.
+
+   Settle each one in the code of branch B (`git grep <term> <B>`, not the
+   checked-out branch) by finding the callers or the stored values that
+   reach it, and name the ones that stay open.
 
 When an extension's suite turns red against a daily image, the first
 question is which side moved: rerun the last green extension commit
@@ -101,6 +115,34 @@ it compares exit statuses.
 
 Data in these instances is seed data. Never copy a production database into
 one to "get realistic data".
+
+## A branch without an image
+
+A branch that is in no image and that `ck make build` cannot build, such
+as a private security branch whose refs are not public, runs on the image
+of the release it is based on, with its changed directories mounted over
+the image's copies. `ck ab` puts the same `--mount`s into both stacks, so
+two such sides need one `ck run` each:
+
+1. Check that the diff to the release holds no schema, `composer.*` or
+   upgrade change (`git diff --name-only <release> <branch>`): a mount
+   covers files only.
+2. One work tree per side (`git worktree add --detach <dir> <ref>`),
+   under `$HOME`.
+3. Each side mounts the directories the diff touches (`CRM`, `Civi`,
+   `templates`, `ext/<name>`) from its own work tree. Both sides mount
+   `tests` and every `ext/<name>/<part>/tests` from A's work tree: B's
+   own tests already ran in its CI, and A's tests against B's code find
+   the regressions that an updated or removed test in B hides.
+4. Write each suite's JUnit into a directory mounted from the host, e.g.
+   `--mount "$HOME/ab-out:/out"` and
+   `ckcoretest --log-junit /out/<side>/<n>.xml <suite>`, and give each
+   side its own `--name`.
+5. Compare the two sides per test: pass on A and fail on B, fail on both,
+   ran on A only. The bullets of the A/B section apply unchanged.
+
+A branch that is not public stays local: no image pushed, no public
+issue, no public pull request (`civicrm-pull-request`).
 
 ## From difference to cause
 
