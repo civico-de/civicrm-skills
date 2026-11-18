@@ -7,7 +7,7 @@ usage() {
   cat >&2 <<'USAGE'
 Usage:
   jenkins.sh check                  is the token accepted
-  jenkins.sh failed <job> <build>   counts and failed tests with their message
+  jenkins.sh failed <job> <build>   counts and failed tests with their trace
   jenkins.sh console <job> <build>  plain build log
   jenkins.sh pr <n> [<repo>]        every failure of a pull request as plain text
                                     (repo defaults to civicrm/civicrm-core)
@@ -67,21 +67,15 @@ report() {
   jk "job/$1/$2/testReport/api/json?tree=failCount,passCount,skipCount,suites[cases[className,name,status,errorStackTrace]]"
 }
 
-# Jenkins test report JSON on stdin, first <lines> of each trace (null: all).
+# Jenkins test report JSON on stdin: each failed test with its trace.
 # Fails on an aggregated (matrix) report.
-failed_json() {
-  jq -e --argjson lines "$1" 'if has("suites") | not then
+failed_text() {
+  jq -r 'if has("suites") | not then
       error("no suites in this test report (an aggregated report, e.g. a matrix job, lists childReports instead)")
     else . end
-    | {failCount, passCount, skipCount, failed: [.suites[].cases[]
-      | select(.status == "FAILED" or .status == "REGRESSION")
-      | {className, name, message: ((.errorStackTrace // "") | split("\n")[0:$lines])}]}'
-}
-
-failed_text() {
-  failed_json null | jq -r '.failed[]
+    | .suites[].cases[] | select(.status == "FAILED" or .status == "REGRESSION")
     | "\(.className)::\(.name)" as $t
-    | "- \($t)", (.message[] | select(. != $t) | "    \(.)")'
+    | "- \($t)", ((.errorStackTrace // "") | split("\n")[] | select(. != $t) | "    \(.)")'
 }
 
 text() { sed -e 's/<[^>]*>//g' -e 's/&lt;/</g; s/&gt;/>/g; s/&quot;/"/g; s/&#39;/'"'"'/g; s/&amp;/\&/g'; }
@@ -171,7 +165,10 @@ case "${1:-}" in
     [ $# -eq 3 ] || usage
     require_token
     job_build "$2" "$3"
-    report "$2" "$3" | failed_json 4
+    r=$(report "$2" "$3")
+    t=$(failed_text <<<"$r")
+    jq -r '"\(.failCount) failed, \(.passCount) passed, \(.skipCount) skipped"' <<<"$r"
+    [ -z "$t" ] || echo "$t"
     ;;
   console)
     [ $# -eq 3 ] || usage

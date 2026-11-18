@@ -79,15 +79,15 @@ is not set up: then say so and stop at the public pages. It needs `bash`,
 
 ```bash
 scripts/jenkins.sh check                          # authenticated: true
-scripts/jenkins.sh failed CiviCRM-Test <build>    # counts, failed tests, message
+scripts/jenkins.sh failed CiviCRM-Test <build>    # counts, failed tests, trace
 scripts/jenkins.sh console CiviCRM-Test <build> | tail -100
 ```
 
 - Job and build number come from the task page (`jenkinsJob`,
   `jenkinsBuildId`).
-- `message` holds the first four lines of `errorStackTrace`: the test with
-  its data set, then the failure message and the file and line. `pr` prints
-  the whole trace.
+- `failed` prints the same plain text as one section of `pr`: a counts line,
+  then each failed test with its data set and its `errorStackTrace`, the
+  failure message with any expected/actual diff, then file and line.
 - `console` is the plain build log, about 150 KB for a PHPUnit task.
 
 ## lab.civicrm.org merge request (GitLab pipelines)
