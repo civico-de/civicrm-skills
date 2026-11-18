@@ -82,7 +82,7 @@ docker compose -p <unique-name> down -v           # -v for a clean reset
 | Task | Command |
 |---|---|
 | Run core's PHPUnit | `ckcoretest tests/phpunit/<path>` in the app container |
-| Suite of a core extension | `ckcoretest --ext <name>` |
+| Suite of a core extension | `ckcoretest --ext <name>`, the path below `ext/`: `afform/core`, not `afform` |
 | End-to-end and browser tests | `ckcoretest --e2e <path>`, plus `docker compose --profile browser up -d` |
 | Test a change | mount the touched directory of a civicrm-core checkout over `/var/www/html/core/<dir>` |
 | One command in a fresh stack, removed afterwards | `ck run <image> [--mount src:dst] [--name <project>] [--keep] -- <command>` on the host |
