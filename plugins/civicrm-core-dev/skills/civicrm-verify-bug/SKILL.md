@@ -150,3 +150,7 @@ and the green output of the control; the green output with the fix only
 when a fix was tested.
 "Locally green" says nothing about upstream CI; report that separately once
 it has run.
+
+A gap in this skill that cost time (a wrong command, a missing step, an
+unnamed trap) is reported as an issue or fixed in a pull request on
+civico-de/civicrm-skills, after the user's go.

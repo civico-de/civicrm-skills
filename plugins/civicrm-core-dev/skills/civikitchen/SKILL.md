@@ -162,3 +162,7 @@ Core's own browser tests above run without either.
 Name the image tag with its CiviCRM version and, for git-built images, the
 core commit; the commands run; and that the stack was removed or why it
 was kept.
+
+A gap in this skill that cost time (a wrong command, a missing step, an
+unnamed trap) is reported as an issue or fixed in a pull request on
+civico-de/civicrm-skills, after the user's go.

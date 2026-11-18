@@ -181,3 +181,7 @@ what was searched beforehand, the base branch, the red and green runs of
 the test, the lint result, the title and body shown to the user, and the
 URL if they gave the go and it was created. Name what is still open: CI,
 review, port.
+
+A gap in this skill that cost time (a wrong command, a missing step, an
+unnamed trap) is reported as an issue or fixed in a pull request on
+civico-de/civicrm-skills, after the user's go.

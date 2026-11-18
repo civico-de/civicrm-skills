@@ -181,3 +181,7 @@ API bypasses the batch and leaves the PR status as it was.
 
 State the head SHA, the status summary, each failed job with its counts, the
 failed test names if they were readable, and what could not be read and why.
+
+A gap in this skill that cost time (a wrong command, a missing step, an
+unnamed trap) is reported as an issue or fixed in a pull request on
+civico-de/civicrm-skills, after the user's go.

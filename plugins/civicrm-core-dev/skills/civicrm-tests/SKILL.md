@@ -179,3 +179,7 @@ suspected bug first: `civicrm-verify-bug`.
 Name the level chosen and why, the classes run with their counts, what you
 watched fail, and which meaningful behaviour is still untested. Comments
 describe the code as it stands, not the approaches tried along the way.
+
+A gap in this skill that cost time (a wrong command, a missing step, an
+unnamed trap) is reported as an issue or fixed in a pull request on
+civico-de/civicrm-skills, after the user's go.

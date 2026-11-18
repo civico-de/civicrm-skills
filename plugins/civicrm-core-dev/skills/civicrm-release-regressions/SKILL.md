@@ -222,3 +222,7 @@ List what was compared (A, B, commits, CMS), which checks ran on both, the
 differences found with their status (regression verified / intended change /
 not reproduced / still open), and what was not covered: upgrade path,
 browser, other CMS.
+
+A gap in this skill that cost time (a wrong command, a missing step, an
+unnamed trap) is reported as an issue or fixed in a pull request on
+civico-de/civicrm-skills, after the user's go.

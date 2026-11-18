@@ -116,3 +116,7 @@ Name the PR, base branch and head SHA; what was reproduced on the base and
 with the fix (commands, red and green); CI status read; each standard's
 verdict; findings by severity; what was not verified and why; the drafted
 comment, and whether it was posted.
+
+A gap in this skill that cost time (a wrong command, a missing step, an
+unnamed trap) is reported as an issue or fixed in a pull request on
+civico-de/civicrm-skills, after the user's go.

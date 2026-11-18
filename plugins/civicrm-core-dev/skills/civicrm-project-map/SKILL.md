@@ -145,3 +145,7 @@ month of testing lies between a change reaching the RC and its release.
 When this skill was used to place something, state where it went or would
 go (tracker and project, or repository and branch), what was searched
 beforehand, and which existing issues or pull requests it links.
+
+A gap in this skill that cost time (a wrong command, a missing step, an
+unnamed trap) is reported as an issue or fixed in a pull request on
+civico-de/civicrm-skills, after the user's go.
