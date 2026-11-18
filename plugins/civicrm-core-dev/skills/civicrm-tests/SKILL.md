@@ -1,6 +1,6 @@
 ---
 name: civicrm-tests
-description: Write, modernize and review CiviCRM core PHPUnit tests in upstream's current style. Use when adding tests - choosing unit, headless, end-to-end or browser level, the base class, fixtures with createTestEntity, getTestForm, mail and validation assertions, strict assertions, cleanup; when writing the regression test for a bug fix ("write a test for this fix"), preparing a bug-fix PR, checking whether a fix is covered, or when a test passes but may not prove anything (red/green proof, controls); when moving tests from APIv3 to APIv4 (`callAPISuccess`, `civicrm_api3` → `createTestEntity`, `Civi\Api4`) and slicing that into upstream PRs, "Tests auf v4 umstellen", "Tests modernisieren", "easy tests".
+description: Write, modernize and review CiviCRM core PHPUnit tests in upstream's current style. Use when adding tests - choosing unit, headless, end-to-end or browser level, the base class, fixtures with createTestEntity, getTestForm, mail and validation assertions, strict assertions, cleanup; when writing the regression test for a bug fix ("write a test for this fix"), preparing a bug-fix PR, checking whether a fix is covered, or when a test passes but may not prove anything (red/green proof, controls); when moving tests from APIv3 to APIv4 (`callAPISuccess`, `civicrm_api3` → `createTestEntity`, `Civi\Api4`) and slicing that into upstream PRs, "easy tests".
 ---
 
 # CiviCRM tests

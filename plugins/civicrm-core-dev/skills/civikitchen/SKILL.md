@@ -1,6 +1,6 @@
 ---
 name: civikitchen
-description: Run CiviCRM in disposable Docker instances with civikitchen - choosing an image and tag (standalone, CMS flavours, master, beta, an old minor), booting a stack, running commands in it, core's PHPUnit suites (ckcoretest), mounting a core checkout, comparing two versions (ck ab), bisecting to a commit (ck bisect), recording before and after (ck demo), resetting, and the traps. Use whenever a task needs a real CiviCRM instance, "spin up CiviCRM", "test against 6.x", "auf master testen", or a ck* command. Only how to get and run an instance; reproducing a bug is civicrm-verify-bug; verifying a bug, reviewing a PR or hunting a release regression follow civicrm-verify-bug, civicrm-review and civicrm-release-regressions, which call this skill.
+description: Run CiviCRM in disposable Docker instances with civikitchen - choosing an image and tag (standalone, CMS flavours, master, beta, an old minor), booting a stack, running commands in it, core's PHPUnit suites (ckcoretest), mounting a core checkout, comparing two versions (ck ab), bisecting to a commit (ck bisect), recording before and after (ck demo), resetting, and the traps. Use whenever a task needs a real CiviCRM instance, "spin up CiviCRM", "test against 6.x", or a ck* command. Only how to get and run an instance; reproducing a bug is civicrm-verify-bug; verifying a bug, reviewing a PR or hunting a release regression follow civicrm-verify-bug, civicrm-review and civicrm-release-regressions, which call this skill.
 ---
 
 # civikitchen

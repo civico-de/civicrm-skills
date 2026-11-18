@@ -1,6 +1,6 @@
 ---
 name: civicrm-review
-description: Review someone else's CiviCRM core pull request - pick and claim it, read the issue and the diff, reproduce on the base branch, validate the fix locally (red without, green with), check it against the review standards (r-explain … r-test) and gotchas (packaging, permissions, security, settings, upgrades, hooks), and draft the review comment for the user's go. Use for "review PR 12345", "is this PR mergeable", "PR reviewen", "Review schreiben". Only for someone else's change; receiving review on your own PR is civicrm-pull-request.
+description: Review someone else's CiviCRM core pull request - pick and claim it, read the issue and the diff, reproduce on the base branch, validate the fix locally (red without, green with), check it against the review standards (r-explain … r-test) and gotchas (packaging, permissions, security, settings, upgrades, hooks), and draft the review comment for the user's go. Use for "review PR 12345", "is this PR mergeable". Only for someone else's change; receiving review on your own PR is civicrm-pull-request.
 ---
 
 # Review a CiviCRM pull request

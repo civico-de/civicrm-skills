@@ -1,6 +1,6 @@
 ---
 name: civicrm-ci-results
-description: Read CiviCRM CI results for a pull request (GitHub, civicrm/civicrm-core and siblings) or merge request (lab.civicrm.org) from the command line - commit status, the test.civicrm.org batch page, failed jobs and failed tests, the Jenkins console, GitLab pipelines, whitelisting and reruns. Use when asked "which tests failed", "why is CI red", "read the Jenkins result", "is master red too", "is the base branch red", "welche Tests sind rot", "CI Ergebnis lesen", before rerunning tests or reviewing a PR.
+description: Read CiviCRM CI results for a pull request (GitHub, civicrm/civicrm-core and siblings) or merge request (lab.civicrm.org) from the command line - commit status, the test.civicrm.org batch page, failed jobs and failed tests, the Jenkins console, GitLab pipelines, whitelisting and reruns. Use when asked "which tests failed", "why is CI red", "read the Jenkins result", "is master red too", "is the base branch red", before rerunning tests or reviewing a PR.
 ---
 
 # Reading CiviCRM CI results

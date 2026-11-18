@@ -1,6 +1,6 @@
 ---
 name: civicrm-project-map
-description: Orientation in the CiviCRM project - where code, issues and discussions live (lab.civicrm.org, GitHub, Stack Exchange, chat), reading core and extension code without web search, the search order before reporting or fixing, branches and the monthly release cycle. Use when asked "where is the ticket", "which repo", "wo meldet man das", "where do I report a bug in an extension", "which branch do I target", "welcher Branch", "when does this ship", and for the search for an existing issue or PR before reporting or fixing anything. Writing the PR or issue afterwards is civicrm-pull-request, reviewing one is civicrm-review.
+description: Orientation in the CiviCRM project - where code, issues and discussions live (lab.civicrm.org, GitHub, Stack Exchange, chat), reading core and extension code without web search, the search order before reporting or fixing, branches and the monthly release cycle. Use when asked "where is the ticket", "which repo", "where do I report a bug in an extension", "which branch do I target", "when does this ship", and for the search for an existing issue or PR before reporting or fixing anything. Writing the PR or issue afterwards is civicrm-pull-request, reviewing one is civicrm-review.
 ---
 
 # How CiviCRM is organised
