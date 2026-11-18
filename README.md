@@ -86,23 +86,25 @@ test.civicrm.org, which needs a login:
    has its own login).
 2. Under "API Token", choose "Add new Token" and copy it; Jenkins shows it
    only once.
-3. Set your user name and a command that prints the token in your shell
-   profile, so the token itself never sits in the environment or a file:
+3. Add both to your shell profile:
 
    ```bash
    export CIVICRM_JENKINS_USER=<your user name>
+   export CIVICRM_JENKINS_TOKEN=<the token>
+   ```
+
+   To keep the token out of plain text, set a command that prints it
+   instead of `CIVICRM_JENKINS_TOKEN`:
+
+   ```bash
    export CIVICRM_JENKINS_TOKEN_COMMAND='op read "op://<vault>/<item>/credential"'
    # or: 'pass show test.civicrm.org'
    # or: 'security find-generic-password -s test.civicrm.org -w'
-   # or: 'cat ~/.config/civicrm/jenkins-token'
    ```
 
-   `CIVICRM_JENKINS_TOKEN` with the token itself works too and takes
-   precedence.
-
 The skill's `scripts/jenkins.sh` runs the command only when a Jenkins read
-needs it and passes the token to curl on stdin, so it does not appear on a
-command line.
+needs it; `CIVICRM_JENKINS_TOKEN` takes precedence. The token reaches curl
+on stdin, so it does not appear on a command line.
 
 The script also works without an agent: `jenkins.sh pr <n>` prints every
 failure of a pull request as plain text, ready to paste.
