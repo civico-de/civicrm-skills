@@ -29,6 +29,21 @@ gh api repos/civicrm/<repo>/commits/$sha/status \
   contributor that is normal until an administrator comments
   `jenkins, ok to test` or `jenkins, add to whitelist`.
 
+## Every failure of a pull request at once
+
+```bash
+scripts/jenkins.sh pr <n> [civicrm/<repo>] > failures.md   # repo defaults to civicrm-core
+```
+
+Plain text, one section per failed job: suite and build type, counts, the
+Jenkins build, then each failed test with its `errorStackTrace` (all lines
+after the test name), or the files a style failure names. It is meant to be
+pasted into a prompt or an issue as it is. Without the token it still prints
+the jobs, counts and style files; when a test job failed it says there that
+the names need the token and exits 3. Exit 1: no test.civicrm.org status yet.
+Exit 4: a page or report could not be read; the section names it and the
+other jobs are still printed.
+
 ## The batch page (no account needed for core PRs)
 
 The batch page is public HTML. It lists failed, pending and successful
@@ -44,6 +59,9 @@ curl -sS https://test.civicrm.org/duderino/batch/CiviCRM-PR/<batch id> -o batch.
 Each task page `.../batch/CiviCRM-PR/<batch id>/<task id>` is public too and
 carries a JSON block with `jenkinsJob`, `jenkinsBuildId`, `outcome`,
 `failCount`, `passCount`, `skipCount`, `node` and `image`.
+`.../batch/CiviCRM-PR/<batch id>/tasks?filter=failed` returns only the failed
+rows. For a style failure, `.../duderino/build/CiviCRM-Style/<build>/bad-style`
+names the offending files; the messages are in the console.
 
 The names of the failed tests are not on these pages. Jenkins itself
 answers 403 to anonymous reads; without a token the batch and task pages
@@ -53,8 +71,11 @@ the test names need a test.civicrm.org account.
 ## Jenkins with an API token
 
 `scripts/jenkins.sh` in this skill's directory reads Jenkins with the
-caller's API token. It exits 3 and names the missing variable when the token
-is not set up: then say so and stop at the public pages.
+caller's API token: `CIVICRM_JENKINS_USER` plus `CIVICRM_JENKINS_TOKEN` or
+`CIVICRM_JENKINS_TOKEN_COMMAND`, a command that prints the token (README,
+"CI details"). It exits 3 and names what is missing or failed when the token
+is not set up: then say so and stop at the public pages. It needs `bash`,
+`curl` and `jq`, and `gh` for `pr`.
 
 ```bash
 scripts/jenkins.sh check                          # authenticated: true
@@ -64,8 +85,9 @@ scripts/jenkins.sh console CiviCRM-Test <build> | tail -100
 
 - Job and build number come from the task page (`jenkinsJob`,
   `jenkinsBuildId`).
-- `message` holds the first lines of `errorStackTrace`: the test with its
-  data set, then the failure message and the file and line.
+- `message` holds the first four lines of `errorStackTrace`: the test with
+  its data set, then the failure message and the file and line. `pr` prints
+  the whole trace.
 - `console` is the plain build log, about 150 KB for a PHPUnit task.
 
 ## lab.civicrm.org merge request (GitLab pipelines)

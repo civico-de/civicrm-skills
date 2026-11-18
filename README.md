@@ -43,6 +43,7 @@ skills call are yours to set up:
 |---|---|
 | reading and changing core's code | a local [civicrm-core](https://github.com/civicrm/civicrm-core) checkout |
 | issues, pull and merge requests | the `gh` and `glab` command line clients, logged in |
+| reading CI results (`civicrm-ci-results`) | `bash` (3.2 or later), `curl` and `jq` beside `gh`; tested on macOS, Debian and Alpine |
 | running an instance or core's tests | Docker; the skills pull [civikitchen](https://github.com/civico-de/civikitchen)'s images. A civikitchen checkout is needed only to build an image of a branch that has none |
 | anything in the user interface | a browser the agent can drive, for example the Playwright MCP server or Claude in Chrome; any equivalent counts |
 
@@ -83,16 +84,26 @@ test.civicrm.org, which needs a login:
 
 1. Log in at https://test.civicrm.org with your civicrm.org account.
 2. Open your user's settings there and create an API token.
-3. Provide both to the agent's shell as environment variables, for example
-   from a file outside any repository that your shell profile sources:
+3. Set your user name and a command that prints the token in your shell
+   profile, so the token itself never sits in the environment or a file:
 
    ```bash
    export CIVICRM_JENKINS_USER=<your user name>
-   export CIVICRM_JENKINS_TOKEN=<the token>
+   export CIVICRM_JENKINS_TOKEN_COMMAND='op read "op://<vault>/<item>/credential"'
+   # or: 'pass show test.civicrm.org'
+   # or: 'security find-generic-password -s test.civicrm.org -w'
+   # or: 'cat ~/.config/civicrm/jenkins-token'
    ```
 
-The skill's `scripts/jenkins.sh` reads them and passes them to curl on
-stdin, so the token does not appear on a command line.
+   `CIVICRM_JENKINS_TOKEN` with the token itself works too and takes
+   precedence.
+
+The skill's `scripts/jenkins.sh` runs the command only when a Jenkins read
+needs it and passes the token to curl on stdin, so it does not appear on a
+command line.
+
+The script also works without an agent: `jenkins.sh pr <n>` prints every
+failure of a pull request as plain text, ready to paste.
 
 ## Layout
 
