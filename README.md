@@ -82,8 +82,10 @@ Without any setup `civicrm-ci-results` reads which suites failed and how
 many tests. The names and messages of the failed tests are in Jenkins on
 test.civicrm.org, which needs a login:
 
-1. Log in at https://test.civicrm.org with your civicrm.org account.
-2. Open your user's settings there and create an API token.
+1. Open https://test.civicrm.org/me/security/ and sign in (test.civicrm.org
+   has its own login).
+2. Under "API Token", choose "Add new Token" and copy it; Jenkins shows it
+   only once.
 3. Set your user name and a command that prints the token in your shell
    profile, so the token itself never sits in the environment or a file:
 
