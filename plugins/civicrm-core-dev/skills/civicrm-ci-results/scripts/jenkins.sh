@@ -115,6 +115,7 @@ print_task() {
     fi
   else
     echo "  No test report: jenkins.sh console $job $build | tail -100"
+    echo "  Server logs: https://storage.googleapis.com/civicrm-build/job-log/$job/$build/server-logs.tar.gz"
   fi
   echo
 }

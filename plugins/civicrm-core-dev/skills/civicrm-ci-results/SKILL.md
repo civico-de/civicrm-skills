@@ -128,6 +128,25 @@ glab api --hostname lab.civicrm.org "projects/$p/pipelines/<id>/test_report"
   test node ran out of disk, RAM or inodes (rerun; recent failures go to
   the `infrastructure` chat channel). Source: `tools/jenkins.md`.
 
+## A job with no result
+
+A job listed as `no result`, with no test report, is a suite that died
+mid-run: PHPUnit left an empty JUnit file, so the console ends in
+`phpunit-xml-cleanup … Document is empty`. Find the suite with a non-empty
+`Found EXITCODES` and read the last lines it printed. The cause is usually
+in the server logs, public without a token:
+
+```bash
+curl -sSf -o server-logs.tar.gz \
+  https://storage.googleapis.com/civicrm-build/job-log/CiviCRM-Test/<build>/server-logs.tar.gz
+```
+
+They hold the CiviCRM log (`…/private/log/CiviCRM.*.log`) and the MySQL,
+php-fpm and Apache logs of the test node. `nativecode=2006 ** MySQL server
+has gone away` in the CiviCRM log with a shutdown in the MySQL log before
+the job's own teardown means the database was stopped under the test: the
+environment, not the change.
+
 ## Is the target branch red too
 
 The PR job tests pull request heads only. The base branch is covered by
@@ -152,6 +171,11 @@ A rerun is a public comment: draft it and post only after the user's go
 (`civicrm-pull-request`, one go per item). The commands are `test this
 please` on GitHub once whitelisted (`tools/jenkins.md`), and `/test` for
 extensions tested by civibot (`testing/continuous-integration.md`).
+The batch page also carries a retry action per task
+(`…/batch/CiviCRM-PR/<batch id>/<task id>/retry`) that posts nothing on
+GitHub; whether its result reaches the PR status is unchecked, so prefer
+the comment. Starting `CiviCRM-Test` directly through the Jenkins
+API bypasses the batch and leaves the PR status as it was.
 
 ## Completion
 
