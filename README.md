@@ -17,7 +17,7 @@ One plugin, `civicrm-core-dev`.
 | `civicrm-verify-bug` | a bug is suspected: reproduce it in a disposable instance before reporting or fixing |
 | `civicrm-tests` | writing tests: level, base class, fixtures, form and mail assertions, cleanup; the regression test for a fix; moving tests from APIv3 to APIv4 |
 | `civicrm-pull-request` | your own change goes upstream: rules for the code, pull request with test, bot commands, or an issue when others' input is needed, or a private security report |
-| `civicrm-review` | reviewing someone else's pull request: reproduce, validate, review standards, the review comment |
+| `civicrm-review` | reviewing someone else's core or extension pull request: reproduce, A/B proof-of-fix and surface diff, blast radius, Stage 2 verification, the review comment |
 | `civicrm-ci-results` | a pull or merge request has a red or pending check: read which jobs and tests failed from the command line |
 | `civicrm-release-regressions` | a version is about to ship or just shipped: compare it with the last one, find what broke, bisect and report |
 
@@ -26,6 +26,7 @@ One plugin, `civicrm-core-dev`.
 | Agent | What it does |
 |---|---|
 | `regression-triage` | reruns one test that passes on version A and fails on version B, alone, twice on B and once on A, and returns a verdict in a fixed format. `civicrm-release-regressions` starts one per test when an A/B run lists many. It runs fixed steps on a small model; the judging stays with the skill |
+| `review-verifier` | read-only Stage 2 adversarial verifier for `civicrm-review`: re-opens cited lines, traces callers, guards and escaping, checks `civicrm-knowledge` MCP and `surface-diff.json`, attempts to disprove candidate findings, and returns a fixed-format verdict (`PROVEN`, `CONFIRMED`, `NEEDS_QUESTION`, `REJECTED`) |
 
 ## Install
 
