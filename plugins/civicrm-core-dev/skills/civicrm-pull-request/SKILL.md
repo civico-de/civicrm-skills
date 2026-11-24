@@ -1,6 +1,6 @@
 ---
 name: civicrm-pull-request
-description: Contribute your own change to CiviCRM upstream - decide between a pull request, an issue and a private security report, follow core's rules for the code (AGENTS.md, lint, upgrade steps, deprecation, dependencies), prepare branch, commit and PR body by core's template and its AI rules, push and open it as draft after the user's go, use the PR bot commands, receive and answer review on your own PR. Use for "open a PR for this fix", "report this upstream", "answer the review on my PR", before writing code for core and before anything is pushed or created on GitHub or lab.civicrm.org. Searching for an existing issue, where to report and which branch to target are civicrm-project-map; writing the test is civicrm-tests; reviewing someone else's PR is civicrm-review.
+description: Contribute your own change to CiviCRM upstream - decide between a pull request, an issue and a private security report, follow core's rules for the code (AGENTS.md, lint, upgrade steps, deprecation, dependencies), prepare branch, commit and PR body by core's template and its AI rules, push and open it as draft after the user's go, use the PR bot commands, receive and answer review on your own PR, including a civireview review. Use for "open a PR for this fix", "report this upstream", "answer the review on my PR", "handle the civireview findings", before writing code for core and before anything is pushed or created on GitHub or lab.civicrm.org. Searching for an existing issue, where to report and which branch to target are civicrm-project-map; writing the test is civicrm-tests; reviewing someone else's PR is civicrm-review.
 ---
 
 # Contribute a change upstream
@@ -155,8 +155,10 @@ is a separate item.
 - Answer review in the pull request, drafted for the user's go.
   Every finding gets an answer in its own thread, automated reviews
   included: "Fixed in <sha>." or "Not changed: <reason>." in one short
-  line, then resolve the thread. Reviewers lean on those findings and cannot tell a fixed one
-  from an open one after a force-push.
+  line, then resolve the thread. Reviewers lean on those findings and
+  cannot tell a fixed one from an open one after a force-push. A
+  "Fixed" line for a finding verified at head needs no separate go.
+  A civireview review: `references/civireview.md`.
   Substantive discussion there goes into the issue too; a pull request
   closed in favour of another is explained in the issue and named in the
   new one (`core/contributing.md`). After long discussion, update the
