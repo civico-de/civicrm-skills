@@ -153,6 +153,10 @@ is a separate item.
   an explicit base (commit range), not a public request; asking anyone in
   public needs the user's go.
 - Answer review in the pull request, drafted for the user's go.
+  Every finding gets an answer in its own thread, automated reviews
+  included: "Fixed in <sha>." or "Not changed: <reason>." in one short
+  line, then resolve the thread. Reviewers lean on those findings and cannot tell a fixed one
+  from an open one after a force-push.
   Substantive discussion there goes into the issue too; a pull request
   closed in favour of another is explained in the issue and named in the
   new one (`core/contributing.md`). After long discussion, update the
